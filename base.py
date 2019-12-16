@@ -6,8 +6,6 @@ from PIL import ImageDraw
 from PIL import ImageTk
 import os
 from PIL import ImageGrab
-# from pyscreenshot import grab
-# import time
 import tkinter.filedialog as tkfl
 from tkinter import colorchooser
 import numpy as np

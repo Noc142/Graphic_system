@@ -173,7 +173,7 @@ class GUI:
         # self.draw_circle.grid(row=3, column=1)
         self.top.config(menu=self.menubar)
 
-        # os.remove("tmp.ico")
+        os.remove("tmp.ico")
 
         self.top.mainloop()
 

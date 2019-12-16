@@ -86,7 +86,7 @@ class Curve(Primitive):
         k = 4
         u_t = k-1
         last_point = [-1, -1]
-        print(u_t)
+        # print(u_t)
         while (u_t < len(self.vertex)):
             j = int(u_t)
             U = np.array([pow(u_t-j, 3), pow(u_t-j, 2), u_t-j, 1])
@@ -101,8 +101,6 @@ class Curve(Primitive):
 
             point = [np.matmul(np.matmul(U, A), px)/6, np.matmul(np.matmul(U, A), py)/6]
             # print(point)
-            # return
-            print(point)
             if last_point != [-1, -1]:
                 tmp_line = Line([last_point, point], 0, 1, 1)
                 self.pixels.extend(tmp_line.get_pixels())
@@ -110,7 +108,7 @@ class Curve(Primitive):
                 self.pixels.append([int(point[0]), int(point[1])])
             last_point = point
             u_t += 0.1
-        print(u_t)
+        # print(u_t)
 
 
 

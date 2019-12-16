@@ -3,9 +3,10 @@ from line import*
 from circle import*
 from polygon import*
 from curve import*
+import sys
 
 class CLI:
-    def __init__(self):
+    def __init__(self, input, save):
         # 初始化
         self.color_r = 0
         self.color_g = 0
@@ -16,7 +17,7 @@ class CLI:
         self.save_name = "temp.bmp"  # 要保存的文件名
         self.image = Image.new("RGB", (self.size_x, self.size_y), (255, 255, 255))
         self.draw = ImageDraw.Draw(self.image)
-
+        self.cmd_line_act(input, save)
 
 
 
@@ -78,7 +79,10 @@ class CLI:
             elif words[0] == "saveCanvas":
                 print("save")
                 if path != '':
-                    self.save_name = path + "/" + words[1] + ".bmp"
+                    if path[len(path)-1] !='/':
+                        self.save_name = path + "/" + words[1] + ".bmp"
+                    else:
+                        self.save_name = path + words[1] + ".bmp"
                 else:
                     self.save_name = words[1] + ".bmp"
                 self.save_canvas()
@@ -174,7 +178,6 @@ class CLI:
 
     def clean_pic(self):
         self.primitives = []
-
         self.refresh()
 
 
@@ -196,4 +199,8 @@ class CLI:
                     # self.draw.point((point[0], point[1]), fill=self.color_r + self.color_g*256 + self.color_b*256*256)
                     self.draw.point((point[0], point[1]), fill=primitive.get_color())
             i = i + 1
+
+if __name__ == '__main__':
+    print("input file: " + sys.argv[1] + "\noutput path: " +sys.argv[2])
+    cli = CLI(sys.argv[1], sys.argv[2])
 
