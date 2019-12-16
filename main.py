@@ -26,19 +26,14 @@
 """
 
 # TODO:
-#       调整按钮布局
 #       读取鼠标数据：右键等更多功能
-#       关闭有的时候要点两次 不知道为啥 ：关闭的command改成了destroy, 以后行不行有待检验
-#       做一下反走样？
-#       输入框为空的时候 处理一下 弹出一个messagebox
 #       双击结束
 #       纯命令行
 #       回退： 存操作&存对象
 #       鼠标事件转成命令行操作
 #       图元文件的保存和读取
 #       鲁棒性：命令行错误 弹窗提示 e.g.裁剪非直线
-#       缩放的误差 手动时特别明显
-#       椭圆旋转有错误
+
 
 from base import*
 from line import*
@@ -48,9 +43,27 @@ from curve import*
 
 class GUI:
     def __init__(self):
-        self.top = Tk()
-        self.top.title("Painting_v2.4.0")
-        self.top.geometry("1000x750+300+0")
+        # 初始化
+        self.init_basic()
+        # 初始化GUI框架
+        self.init_GUI()
+        # 图像显示相关
+        self.init_papers()
+        # 鼠标事件相关
+        self.init_mouse()
+        # 基础按钮等
+        self.init_buttons_basic()
+        # 鼠标图元变换相关
+        self.init_change()
+        # 命令行等其他的按键
+        self.init_buttons_files()
+        # 菜单栏：
+        self.menubar = Menu(self.top)
+        self.init_menubar()
+        # pack
+        self.pack_n_run()
+
+    def init_basic(self):
         self.color_r = 0
         self.color_g = 0
         self.color_b = 0
@@ -58,15 +71,69 @@ class GUI:
         self.size_y = 500
         self.primitives = []  # 已经创建的图元 用于撤销等操作
         self.save_name = "temp.bmp"  # 要保存的文件名
-
-        # 图像显示相关
         self.image = Image.new("RGB", (self.size_x, self.size_y), (255, 255, 255))
+
+    def init_GUI(self):
+        self.top = Tk()
+        self.top.title("Painting_v2.4.0")
+        self.top.geometry("1000x600+200+0")
+
+    def init_papers(self):
+        self.is_image_scaling = 0  # 1 for left, 2 for down, 3 for both
         self.draw = ImageDraw.Draw(self.image)
         self.photo = ImageTk.PhotoImage(self.image)
-        self.paper = Canvas(self.top, width=800, height=600, bg="gray")
+        self.paper = Canvas(self.top, width=1000, height=600, bg="gray")
         self.paper.create_image(2, 2, image=self.photo, anchor=NW)
 
-        # 鼠标事件相关
+    def init_buttons_basic(self):
+        self.tmp_icon0 = self.getIcon(0)
+        self.line_DDA = Button(self.top, command=lambda: self.set_type(self.line_type), text="直线", image=self.tmp_icon0)
+        # self.line_Bre = Button(self.top, command=lambda: self.set_type(1), text="Bresenham直线")
+        self.tmp_icon1 = self.getIcon(1)
+        self.owl = Button(self.top, command=lambda: self.set_type(2), text="椭圆", image=self.tmp_icon1)
+        self.tmp_icon2 = self.getIcon(2)   # next line: 3 for dda 4 for bresenham
+        self.polygon = Button(self.top, command=lambda: self.set_type(3), text="多边形", image=self.tmp_icon2)
+        self.tmp_icon3 = self.getIcon(3)
+        self.curve = Button(self.top, command=lambda: self.set_type(4), text="曲线", image=self.tmp_icon3)
+        self.tmp_icon4 = self.getIcon(4)
+        self.translate = Button(self.top, command=lambda: self.set_type(5), text="平移", image=self.tmp_icon4)
+        self.tmp_icon5 = self.getIcon(5)
+        self.rotate = Button(self.top, command=lambda: self.set_type(6), text="旋转", image=self.tmp_icon5)
+        self.tmp_icon6 = self.getIcon(6)
+        self.scale = Button(self.top, command=lambda: self.set_type(7), text="缩放", image=self.tmp_icon6)
+        # self.save_but = Button(self.top, command=self.save_canvas, text="保存")
+        self.is_polygon_painting = 0
+        self.is_curve_painting = 0
+        self.polygon_last_point = [0, 0]
+        self.map = np.full((self.size_x, self.size_y), -1)
+
+    def init_buttons_files(self):
+        self.tmp_icon8 = self.getIcon(8)
+        self.cl = Button(self.top, command=self.cmd_line_window, text="打开文件", image=self.tmp_icon8)
+        self.tmp_icon7 = self.getIcon(7)
+        self.colorboard = Button(self.top, command=self.color_board_window, text='调色板', image=self.tmp_icon7)
+
+        # 基础按键设置
+        # self.draw_line = Button(self.top, command=self.draw_line_window, text="画直线")
+        # self.draw_circle = Button(self.top, command=self.draw_circle_window, text="画椭圆")
+        self.tmp_icon9 = self.getIcon(9)
+        self.clean = Button(self.top, command=self.clean_pic, text="清除画布", image=self.tmp_icon9)
+        self.tmp_icon10 = self.getIcon(10)
+        self.close = Button(self.top, command=self.top.destroy, text="关闭", image=self.tmp_icon10)
+
+    def init_change(self):
+        self.primitive_changing = 0
+        self.last_point = [-1, -1]
+        self.is_translating = 0
+        self.rotate_point = [-1, -1]
+        self.is_rotating = 0
+        # self.is_primitive_rotating = 0
+        self.start_angle = 0  # 弧度
+        self.scale_point = [-1, -1]
+        self.is_scaling = 0
+        self.start_distance = 0
+
+    def init_mouse(self):
         self.cur = self.primitives.__len__()  # 当前正在绘制的图元的数组下标
         self.start_x = 0  # 图元初始坐标
         self.start_y = 0
@@ -79,77 +146,16 @@ class GUI:
         self.polygon_type = 1
         self.curve_type = 1
 
-        # icon = Image.open('drawLine.png')
-        # drawLineIcon = tkinter.PhotoImage(file='drawLine.png')
-        # drawLineIcon = ImageTk.PhotoImage(icon.resize((20, 20), Image.ANTIALIAS))
-        # def getIcon(s):
-        #     tmp = open("tmp.ico", "wb+")
-        #     tmp.write(base64.b64decode(imgs.drawLineicon))  # 写入到临时文件中
-        #     tmp.close()
-        #     return PhotoImage(file='tmp.ico')
-        # tmp = open("tmp.ico", "wb+")
-        # tmp.write(base64.b64decode(imgs.drawLineicon))  # 写入到临时文件中
-        # tmp.close()
-        # abc = PhotoImage(file='tmp.ico')
-
-        tmp_icon0 = self.getIcon(0)
-        self.line_DDA = Button(self.top, command=lambda: self.set_type(self.line_type), text="直线", image=tmp_icon0)
-        # self.line_Bre = Button(self.top, command=lambda: self.set_type(1), text="Bresenham直线")
-        tmp_icon1 = self.getIcon(1)
-        self.owl = Button(self.top, command=lambda: self.set_type(2), text="椭圆", image=tmp_icon1)
-        tmp_icon2 = self.getIcon(2)   # next line: 3 for dda 4 for bresenham
-        self.polygon = Button(self.top, command=lambda: self.set_type(3), text="多边形", image=tmp_icon2)
-        tmp_icon3 = self.getIcon(3)
-        self.curve = Button(self.top, command=lambda: self.set_type(4), text="曲线", image=tmp_icon3)
-        tmp_icon4 = self.getIcon(4)
-        self.translate = Button(self.top, command=lambda: self.set_type(5), text="平移", image=tmp_icon4)
-        tmp_icon5 = self.getIcon(5)
-        self.rotate = Button(self.top, command=lambda: self.set_type(6), text="旋转", image=tmp_icon5)
-        tmp_icon6 = self.getIcon(6)
-        self.scale = Button(self.top, command=lambda: self.set_type(7), text="缩放", image=tmp_icon6)
-        # self.save_but = Button(self.top, command=self.save_canvas, text="保存")
-        self.is_polygon_painting = 0
-        self.is_curve_painting = 0
-        self.polygon_last_point = [0, 0]
-        self.map = np.full((self.size_x, self.size_y), -1)
-
-        # 图元变换相关
-        self.primitive_changing = 0
-        self.last_point = [-1, -1]
-        self.is_translating = 0
-        self.rotate_point = [-1, -1]
-        self.is_rotating = 0
-        # self.is_primitive_rotating = 0
-        self.start_angle = 0  # 弧度
-        self.scale_point = [-1, -1]
-        self.is_scaling = 0
-        self.start_distance = 0
-
-        # 命令行的按键
-        tmp_icon8 = self.getIcon(8)
-        self.cl = Button(self.top, command=self.cmd_line_window, text="打开文件", image=tmp_icon8)
-        tmp_icon7 = self.getIcon(7)
-        self.colorboard = Button(self.top, command=self.color_board_window, text='调色板', image=tmp_icon7)
-
-        # 基础按键设置
-        # self.draw_line = Button(self.top, command=self.draw_line_window, text="画直线")
-        # self.draw_circle = Button(self.top, command=self.draw_circle_window, text="画椭圆")
-        tmp_icon9 = self.getIcon(9)
-        self.clean = Button(self.top, command=self.clean_pic, text="清除画布", image=tmp_icon9)
-        tmp_icon10 = self.getIcon(10)
-        self.close = Button(self.top, command=self.top.destroy, text="关闭", image=tmp_icon10)
-
-        # 菜单栏：
-        menubar = Menu(self.top)
-        filemenu = Menu(menubar, tearoff=0)
-        menubar.add_cascade(label='文件', menu=filemenu)
+    def init_menubar(self):
+        filemenu = Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label='文件', menu=filemenu)
         filemenu.add_cascade(label='打开命令行文件', command=self.cmd_line_window)
         filemenu.add_command(label='清除画布', command=self.clean_pic)
         filemenu.add_command(label='保存', command=self.save_by_mouse)
         filemenu.add_command(label='退出', command=self.top.destroy)
 
-        drawmenu = Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="绘图", menu=drawmenu)
+        drawmenu = Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="绘图", menu=drawmenu)
 
         def set_draw_type(pri, type_t):
             if pri=='line':
@@ -173,7 +179,7 @@ class GUI:
         sub_menu_curve.add_radiobutton(label="Bezier", command=lambda: set_draw_type('curve', 1))  # command
         sub_menu_curve.add_radiobutton(label="B-spline", command=lambda: set_draw_type('curve', 2))
 
-
+    def pack_n_run(self):
         # pack， TODO：位置设置
         self.line_DDA.grid(row=0, column=0)
         # self.line_DDA.place(x=0, y=0)
@@ -193,13 +199,14 @@ class GUI:
         self.close.grid(row=0, column=11)
         # self.draw_line.grid(row=3, column=0)
         # self.draw_circle.grid(row=3, column=1)
-        self.top.config(menu=menubar)
+        self.top.config(menu=self.menubar)
 
-        os.remove("tmp.ico")
+        # os.remove("tmp.ico")
 
         self.top.mainloop()
 
-    def getIcon(self, s):
+    @staticmethod
+    def getIcon(s):
         tmp = open("tmp.ico", "wb+")
         tmp.write(base64.b64decode(imgs.icons[s]))
         tmp.close()
@@ -444,7 +451,6 @@ class GUI:
                 tkinter.messagebox.showinfo("提示", notification)
                 break
 
-
     def clean_pic(self):
         self.paper.delete(ALL)
         self.primitives = []
@@ -475,7 +481,7 @@ class GUI:
         for primitive in self.primitives:
             pixels = primitive.get_pixels()
             for point in pixels:
-                if (point[0] >= 0) and (point[1] >= 0) and (point[0] <= 499) and (point[1] <= 499):
+                if (point[0] >= 0) and (point[1] >= 0) and (point[0] <= self.size_x-1) and (point[1] <= self.size_y-1):
                     # self.draw.point((point[0], point[1]), fill=self.color_r + self.color_g*256 + self.color_b*256*256)
                     self.draw.point((point[0], point[1]), fill=primitive.get_color())
                     if self.map[point[0]][point[1]] == -1:
@@ -501,7 +507,6 @@ class GUI:
         self.cur = self.primitives.__len__()
         self.start_x = event.x
         self.start_y = event.y
-        color = [self.color_r, self.color_g, self.color_b]
         def find(point):
             res = -1
             for i in range(point[0] - 5, point[0] + 5):
@@ -515,7 +520,14 @@ class GUI:
                                 return res
             print("select ", res)
             return res
-        if self.type == 0 or self.type == 1:
+        color = [self.color_r, self.color_g, self.color_b]
+        if event.x>=self.size_x-5 and event.y>=self.size_y-5:
+            self.is_image_scaling = 3
+        elif event.x>=self.size_x-5:
+            self.is_image_scaling = 1
+        elif event.y >=self.size_y-5:
+            self.is_image_scaling = 2
+        elif self.type == 0 or self.type == 1:
             temp_list = [[self.start_x, self.start_y], [self.start_x, self.start_y]]
             line_being_drawn = Line(temp_list, self.primitives.__len__(), self.line_type, color)
             self.primitives.append(line_being_drawn)
@@ -587,7 +599,16 @@ class GUI:
         y = event.y
         # print("pass", x, y)
         # temp_list = []
-        if self.type == 0 or self.type == 1:
+        if self.is_image_scaling > 0:
+            if self.is_image_scaling == 1:
+                self.size_x = 1000 if x>=1000 else x
+            elif self.is_image_scaling == 2:
+                self.size_y = 600 if y>=600 else y
+            else:
+                self.size_x = 1000 if x>=1000 else x
+                self.size_y = 600 if y>=600 else y
+            self.set_type(self.type)
+        elif self.type == 0 or self.type == 1:
             temp_list = [[self.start_x, self.start_y], [x, y]]
             self.primitives[self.cur].vertex = temp_list
             self.primitives[self.cur].rasterization()
@@ -630,7 +651,9 @@ class GUI:
         # print("refreshed")
 
     def leftrelease(self, event):
-        if self.type==0 or self.type == 1 or self.type == 2:
+        if self.is_image_scaling >0:
+            self.is_image_scaling = 0
+        elif self.type==0 or self.type == 1 or self.type == 2:
             self.cur = self.primitives.__len__()
         elif self.type == 3:
             self.primitives[self.cur].update_rasterization([event.x, event.y])
