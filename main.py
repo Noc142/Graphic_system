@@ -444,6 +444,7 @@ class GUI:
                 tkinter.messagebox.showinfo("提示", notification)
                 break
 
+
     def clean_pic(self):
         self.paper.delete(ALL)
         self.primitives = []

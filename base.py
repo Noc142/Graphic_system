@@ -11,7 +11,6 @@ from PIL import ImageGrab
 import tkinter.filedialog as tkfl
 from tkinter import colorchooser
 import numpy as np
-
 import imgs
 import base64
 

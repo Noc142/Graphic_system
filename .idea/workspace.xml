@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c9302a5e-742e-4393-a54d-ce6f33f50f69" name="Default Changelist" comment="" />
+    <list default="true" id="c9302a5e-742e-4393-a54d-ce6f33f50f69" name="Default Changelist" comment="191216_2">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,8 +29,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3">
-              <caret line="130" column="35" lean-forward="true" selection-start-line="130" selection-start-column="35" selection-end-line="130" selection-end-column="35" />
+            <state relative-caret-position="378">
+              <caret line="446" selection-start-line="446" selection-end-line="446" />
               <folding>
                 <element signature="e#884#901#0" expanded="true" />
               </folding>
@@ -38,7 +42,7 @@
         <entry file="file://$PROJECT_DIR$/imgs.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="228">
-              <caret line="12" column="39" lean-forward="true" selection-start-line="12" selection-start-column="39" selection-end-line="12" selection-end-column="39" />
+              <caret line="12" column="39" selection-start-line="12" selection-start-column="39" selection-end-line="12" selection-end-column="39" />
             </state>
           </provider>
         </entry>
@@ -126,6 +130,10 @@
       <find>PhotoImage</find>
     </findStrings>
   </component>
+  <component name="Git.Settings">
+    <option name="UPDATE_TYPE" value="MERGE" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
@@ -140,12 +148,13 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="750" />
     <option name="y" value="-36" />
     <option name="width" value="1920" />
     <option name="height" value="1030" />
   </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
@@ -153,6 +162,7 @@
     <panes />
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../png2py" />
     <property name="node.js.detected.package.eslint" value="true" />
@@ -311,12 +321,13 @@
       <workItem from="1575789037813" duration="10705000" />
       <workItem from="1576300460941" duration="227000" />
       <workItem from="1576393510596" duration="5241000" />
-      <workItem from="1576478539196" duration="1153000" />
+      <workItem from="1576478539196" duration="1885000" />
+      <workItem from="1576481114690" duration="96000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="202041000" />
+    <option name="totallyTimeSpent" value="202869000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -333,10 +344,10 @@
     <layout>
       <window_info content_ui="combo" id="Project" order="0" weight="0.26867923" />
       <window_info id="Favorites" order="1" sideWeight="0.49867725" weight="0.23773585" />
-      <window_info id="Structure" order="2" sideWeight="0.50132275" side_tool="true" visible="true" weight="0.16075471" />
+      <window_info id="Structure" order="2" sideWeight="0.50132275" side_tool="true" visible="true" weight="0.16301887" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.18386243" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.18410596" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3121693" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -351,7 +362,7 @@
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="SciView" order="3" visible="true" weight="0.21056604" />
+      <window_info active="true" anchor="right" id="SciView" order="3" visible="true" weight="0.21056604" />
       <window_info anchor="right" id="Database" order="4" />
       <window_info anchor="right" x="0" y="0" width="337" height="638" id="Documentation" order="5" side_tool="true" weight="0.3542471" />
     </layout>
@@ -398,6 +409,13 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/imgs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="228">
+          <caret line="12" column="39" selection-start-line="12" selection-start-column="39" selection-end-line="12" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/line.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="57">
@@ -435,17 +453,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/imgs.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="12" column="39" lean-forward="true" selection-start-line="12" selection-start-column="39" selection-end-line="12" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3">
-          <caret line="130" column="35" lean-forward="true" selection-start-line="130" selection-start-column="35" selection-end-line="130" selection-end-column="35" />
+        <state relative-caret-position="378">
+          <caret line="446" selection-start-line="446" selection-end-line="446" />
           <folding>
             <element signature="e#884#901#0" expanded="true" />
           </folding>
