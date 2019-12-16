@@ -1,30 +1,3 @@
-
-"""
-    v1.1.0update 2019/10/26
-    添加了基础功能：读取命令行文件
-    实现了重置画布/保存画布/设置画笔颜色/画线段/画椭圆/画多边形的命令
-
-    v1.0.4update 2019/10/21
-    实现了通过获取鼠标事件绘制多边形
-
-    v1.0.3update 2019/10/20
-    添加了获取鼠标事件来调用DDA算法、Bresenham算法以及中点椭圆算法的功能
-    运行效率还说得过去
-
-    v1.0.2update 2019/10/19
-    修改了画图逻辑：每次出现新的图元或者有图元修改时
-    使用GUI.update函数对图片进行刷新，刷新过程中遍历所有图元的所有点
-    这样在删除/修改某个图元后。原先被盖住的像素可以还原
-    经测试，图元数量为80个以下时，刷新时间能够控制在100ms以下
-
-    v1.0.1 update  2019/10/15
-    将直接在tkinter.canvas上画线以代替点的画图方式修改为用PIL画图然后粘贴到canvas上
-    这样可以对单个像素进行操作而不是直接在tkinter.Canvas上画线曲线救国，一定程度提高了效率
-
-    v1.0.0
-    完成了初步框架
-"""
-
 # TODO:
 #       读取鼠标数据：右键等更多功能
 #       双击结束
@@ -33,7 +6,6 @@
 #       鼠标事件转成命令行操作
 #       图元文件的保存和读取
 #       鲁棒性：命令行错误 弹窗提示 e.g.裁剪非直线
-
 
 from base import*
 from line import*
@@ -72,6 +44,7 @@ class GUI:
         self.primitives = []  # 已经创建的图元 用于撤销等操作
         self.save_name = "temp.bmp"  # 要保存的文件名
         self.image = Image.new("RGB", (self.size_x, self.size_y), (255, 255, 255))
+        self.draw = ImageDraw.Draw(self.image)
 
     def init_GUI(self):
         self.top = Tk()
@@ -80,7 +53,6 @@ class GUI:
 
     def init_papers(self):
         self.is_image_scaling = 0  # 1 for left, 2 for down, 3 for both
-        self.draw = ImageDraw.Draw(self.image)
         self.photo = ImageTk.PhotoImage(self.image)
         self.paper = Canvas(self.top, width=1000, height=600, bg="gray")
         self.paper.create_image(2, 2, image=self.photo, anchor=NW)
@@ -212,55 +184,6 @@ class GUI:
         tmp.close()
         return PhotoImage(file='tmp.ico')
 
-    # def draw_line_window(self):
-    #     in_put = Toplevel()
-    #     in_put.title("画直线")
-    #     in_put.geometry("600x100+605+300")
-    #     Label(in_put, text="第一个点的横坐标：").grid(row=0, column=0)
-    #     Label(in_put, text="第一个点的纵坐标：").grid(row=0, column=2)
-    #     Label(in_put, text="第二个点的横坐标：").grid(row=1, column=0)
-    #     Label(in_put, text="第二个点的纵坐标：").grid(row=1, column=2)
-    #     x1 = Entry(in_put)
-    #     y1 = Entry(in_put)
-    #     x2 = Entry(in_put)
-    #     y2 = Entry(in_put)
-    #     x1.grid(row=0, column=1)
-    #     y1.grid(row=0, column=3)
-    #     x2.grid(row=1, column=1)
-    #     y2.grid(row=1, column=3)
-    #     draw_DDA = Button(in_put, command=lambda: self.draw_line_primitive(x1, y1, x2, y2, 1), text="DDA算法")
-    #     draw_Bresenham = Button(in_put, command=lambda: self.draw_line_primitive(x1, y1, x2, y2, 2), text="Bresenham算法")
-    #     close = Button(in_put, command=in_put.destroy, text="关闭")  # 子窗口关闭用destroy不用quit
-    #     draw_DDA.grid(row=2, column=0)
-    #     draw_Bresenham.grid(row=2, column=1)
-    #     close.grid(row=2, column=3)
-    #     # draw.pack()
-    #     # close.pack()
-    #     in_put.mainloop()
-    #     print("done")
-    #
-    # def draw_circle_window(self):
-    #     in_put = Toplevel()
-    #     in_put.title("画椭圆")
-    #     in_put.geometry("600x100+605+300")
-    #     Label(in_put, text="圆心的横坐标：").grid(row=0, column=0)
-    #     Label(in_put, text="圆心的纵坐标：").grid(row=0, column=2)
-    #     Label(in_put, text="长半轴：").grid(row=1, column=0)
-    #     Label(in_put, text="短半轴：").grid(row=1, column=2)
-    #     x = Entry(in_put)
-    #     y = Entry(in_put)
-    #     rx = Entry(in_put)
-    #     ry = Entry(in_put)
-    #     x.grid(row=0, column=1)
-    #     y.grid(row=0, column=3)
-    #     rx.grid(row=1, column=1)
-    #     ry.grid(row=1, column=3)
-    #     draw = Button(in_put, command=lambda: self.draw_circle_primitive(x, y, rx, ry), text="开始")
-    #     close = Button(in_put, command=in_put.destroy, text="关闭")
-    #     draw.grid(row=2, column=0)
-    #     close.grid(row=2, column=3)
-    #     in_put.mainloop()
-
     def cmd_line_window(self):
         in_put = Toplevel()
         # in_put.wm_attributes('-topmost', 1)
@@ -305,34 +228,13 @@ class GUI:
             self.save_canvas()
 
     def color_board_window(self):
-        color_t = colorchooser.askcolor(parent=self.top, title='选择画笔颜色', color='blue')
-        self.color_r = int(color_t[0][0])
-        self.color_g = int(color_t[0][1])
-        self.color_b = int(color_t[0][2])
-        print(self.color_r, self.color_g, self.color_b, color_t)
-
-    def draw_line_primitive(self, x1, y1, x2, y2, method):   # 通用的 vertex是输入框的list的list 待添加更多参数以区分形状
-                                                            # method也可以用来区分是否为多边形传入的直线，这样就不用对直线创建新的图元了
-        vertex = [[int(x1.get()), int(y1.get())], [int(x2.get()), int(y2.get())]]
-        color = [self.color_r, self.color_g, self.color_b]
-        line_2b_drawn = Line(vertex, self.primitives.__len__(), method, color)
-        line_2b_drawn.rasterization()
-        self.primitives.append(line_2b_drawn)
-        # print(points)
-        # for i in points:
-        #     self.print_pixel(i[0], i[1])
-        self.refresh()
-        # self.image.show()
-
-    def draw_circle_primitive(self, x, y, rx, ry):
-        vertex = [[int(x.get()), int(y.get())], [int(rx.get()), int(ry.get())]]
-        color = [self.color_r, self.color_g, self.color_b]
-        circle_2b_drawn = Circle(vertex, self.primitives.__len__(), color)
-        circle_2b_drawn.rasterization()
-        self.primitives.append(circle_2b_drawn)
-        # for i in points:
-        #     self.print_pixel(i[0], i[1])
-        self.refresh()
+        tmp = colorchooser.askcolor(parent=self.top, title='选择画笔颜色', color='blue')
+        if tmp != (None, None):
+            color_t =tmp
+            self.color_r = int(color_t[0][0])
+            self.color_g = int(color_t[0][1])
+            self.color_b = int(color_t[0][2])
+            print(self.color_r, self.color_g, self.color_b, color_t)
 
     def cmd_line_act(self, file_name, save_path):
         file = file_name.get()
