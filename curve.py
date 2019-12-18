@@ -52,6 +52,8 @@ class Curve(Primitive):
 
     @staticmethod
     def distance(p, l):
+        if l[0]==l[1]:
+            return math.sqrt((p[0]-l[0][0])*(p[0]-l[0][0]) + (p[1]-l[0][1])*(p[1]-l[0][1]))
         a = l[1][1] - l[0][1]
         b = l[0][0] - l[1][0]
         c = (l[1][0] - l[0][0])*l[0][1] - (l[1][1] - l[0][1])*l[0][0]

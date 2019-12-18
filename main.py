@@ -4,6 +4,7 @@
 #       鲁棒性：命令行错误 弹窗提示 e.g.裁剪非直线
 #       GUI裁剪
 #       按钮提示
+#       曲线控制点
 
 from base import*
 from line import*
