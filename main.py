@@ -75,6 +75,8 @@ class GUI:
         self.rotate = Button(self.top, command=lambda: self.set_type(6), text="旋转", image=self.tmp_icon5)
         self.tmp_icon6 = self.getIcon(6)
         self.scale = Button(self.top, command=lambda: self.set_type(7), text="缩放", image=self.tmp_icon6)
+        # self.tmp_icon12 = self.getIcon(12)
+        self.clip = Button(self.top, command=lambda: self.set_type(8), text="裁剪")  #, image=self.tmp_icon12)
         # self.save_but = Button(self.top, command=self.save_canvas, text="保存")
         self.is_polygon_painting = 0
         self.is_curve_painting = 0
@@ -106,6 +108,13 @@ class GUI:
         self.scale_point = [-1, -1]
         self.is_scaling = 0
         self.start_distance = 0
+        # self.primitive_clipping = -1
+        self.is_clipping = 0
+        self.clip_point = [-1, -1]
+        self.clip_alg = ''
+        self.clipped = 0
+
+        # self.
 
     def init_mouse(self):
         self.cur = self.primitives.__len__()  # 当前正在绘制的图元的数组下标
@@ -166,7 +175,7 @@ class GUI:
 
     def pack_dis_ctrl_point(self, p):
         if p==1:
-            self.ctrl_point_check.grid(row=0, column=12)
+            self.ctrl_point_check.grid(row=0, column=20)
         else:
             self.ctrl_point_check.grid_forget()
 
@@ -181,7 +190,8 @@ class GUI:
         self.translate.grid(row=0, column=4)
         self.rotate.grid(row=0, column=5)
         self.scale.grid(row=0, column=6)
-        self.colorboard.grid(row=0, column=7)
+        self.clip.grid(row=0, column=7)
+        self.colorboard.grid(row=0, column=8)
 
         # self.paper.grid(row=1, column=5)
         self.paper.place(x=0, y=30)
@@ -554,6 +564,16 @@ class GUI:
                     print('a')
                     self.start_distance = math.sqrt(pow(event.x - self.scale_point[0], 2) +
                                                     pow(event.y - self.scale_point[1], 2))
+        elif self.type == 8:
+            if self.is_clipping == 1:
+                self.last_point = [event.x, event.y]
+            else:
+                self.primitive_changing = find([event.x, event.y], self.map)
+                if self.primitive_changing >= 0 and self.primitives[self.primitive_changing].__class__.__name__=='Line':
+                    self.is_clipping = 1
+
+
+
 
         # print("press", event.x, event.y)
 
@@ -614,6 +634,18 @@ class GUI:
             self.primitives[self.primitive_changing].scale(self.scale_point[0], self.scale_point[1],
                                                            cur_dis/self.start_distance)
             self.start_distance = cur_dis
+        elif self.type == 8 and self.primitive_changing != -1 and self.is_clipping==1:
+            self.clip_point = [x, y]
+            self.clip_alg = 'Cohen-Sutherland'
+            tmp_line = self.primitives[self.primitive_changing]
+
+            tmp_line.clip(self.last_point[0], self.last_point[1],
+                                                          self.clip_point[0], self.clip_point[1],
+                                                          self.clip_alg)
+            self.clipped = 1
+            # 类的赋值有问题
+            # 得到像素画出来
+            #TODO: 算法选择， 直线和裁剪框的标识
         self.refresh()
         # print("refreshed")
 
@@ -642,6 +674,13 @@ class GUI:
         elif self.type == 7:
             self.primitive_changing = -1
             self.primitives[self.primitive_changing].change(0)
+        elif self.type == 8 and self.clipped == 1:
+            self.primitives[self.primitive_changing].clip(self.last_point[0], self.last_point[1],
+                                                          self.clip_point[0], self.clip_point[1],
+                                                          self.clip_alg)
+            self.clipped = 0
+            self.is_clipping = 0
+            self.primitive_changing = -1
         # print("release")
 
     def double_left_click(self, event):

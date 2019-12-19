@@ -132,16 +132,16 @@ class Line(Primitive):
                     cross_points = [self.vertex[0]]
                     res = []
                     if code[1]&8==8:
-                        print("x min")
+                        # print("x min")
                         res = self.node(x1, y1, x2, y2, 1)
                     elif code[1]&4==4:
-                        print("x max")
+                        # print("x max")
                         res = self.node(x1, y1, x2, y2, 2)
                     if code[1]&2==2:
-                        print("y min")
+                        # print("y min")
                         res = self.node(x1, y1, x2, y2, 3)
                     elif code[1]&1==1:
-                        print("y max")
+                        # print("y max")
                         res = self.node(x1, y1, x2, y2, 4)
                     if len(res) != 0:
                         cross_points.append(res)
@@ -152,22 +152,22 @@ class Line(Primitive):
                     cross = code[0] | code[1]
                     res = []
                     if cross & 8 == 8:
-                        print("x min")
+                        # print("x min")
                         res = self.node(x1, y1, x2, y2, 1)
                         if len(res) != 0:
                             cross_points.append(res)
                     if cross & 4 == 4:
-                        print("x max")
+                        # print("x max")
                         res = self.node(x1, y1, x2, y2, 2)
                         if len(res) != 0:
                             cross_points.append(res)
                     if cross & 2 == 2:
-                        print("y min")
+                        # print("y min")
                         res = self.node(x1, y1, x2, y2, 3)
                         if len(res) != 0 and res not in cross_points:
                             cross_points.append(res)
                     if cross & 1 == 1:
-                        print("y max")
+                        # print("y max")
                         res = self.node(x1, y1, x2, y2, 4)
                         if len(res) != 0 and res not in cross_points:
                             cross_points.append(res)
