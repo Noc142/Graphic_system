@@ -4,7 +4,8 @@
 #       鲁棒性：命令行错误 弹窗提示 e.g.裁剪非直线
 #       GUI裁剪
 #       按钮提示
-#       曲线控制点
+#       曲线控制点, canvas的显示
+#       鼠标按下
 
 from base import*
 from line import*
@@ -155,7 +156,9 @@ class GUI:
     def init_curve_drawing(self):
         self.display_ctrl_point = 0
         self.ctrl_point_check = Checkbutton(self.top, text="显示控制点", command=self.change_dis_ctrl_point)
-        self.map_ctrl_point = np.full((self.size_x, self.size_y), -1)
+        self.map_ctrl_point = np.full((self.size_x, self.size_y, 2), -1)
+        self.is_curve_modifying = 0
+        self.curve_modify_num = [-1, -1]
 
     def change_dis_ctrl_point(self):
         self.display_ctrl_point = 1 if self.display_ctrl_point==0 else 0
@@ -398,6 +401,7 @@ class GUI:
         #     print(1111)
         # else:
         #     print("0000")
+        self.paper.delete(ALL)
         self.image = Image.new("RGB", (self.size_x, self.size_y), (255, 255, 255))
         self.draw = ImageDraw.Draw(self.image)
         self.map = np.full((self.size_x, self.size_y), -1)
@@ -424,13 +428,15 @@ class GUI:
             self.paper.create_oval(self.scale_point[0]-2, self.scale_point[1]-2,
                                    self.scale_point[0]+2, self.scale_point[1]+2,
                                    fill='green')
-        if self.type==4 and self.display_ctrl_point==1:  # 绘制曲线控制点和虚线
-            self.map_ctrl_point = np.full((self.size_x, self.size_y), -1)
+        if self.type>=4 and self.display_ctrl_point==1:  # 绘制曲线控制点和虚线
+            self.map_ctrl_point = np.full((self.size_x, self.size_y, 2), -1)
             for i in range(self.primitives.__len__()):
                 if self.primitives[i].__class__.__name__ == 'Curve':
                     vertex = self.primitives[i].get_vertexes()
                     for j in range(vertex.__len__()):
                         self.paper.create_oval(vertex[j][0]-2, vertex[j][1]-2, vertex[j][0]+2, vertex[j][1]+2)
+                        if 0<=vertex[j][0]<=self.size_x-1 and 0<=vertex[j][1]<=self.size_y-1:
+                            self.map_ctrl_point[vertex[j][0]][vertex[j][1]] = [i, j]
                         if j >= 1:
                             self.paper.create_line(vertex[j-1][0], vertex[j-1][1], vertex[j][0], vertex[j][1],
                                                    fill='red', dash=(4, 4))
@@ -442,26 +448,40 @@ class GUI:
         self.cur = self.primitives.__len__()
         self.start_x = event.x
         self.start_y = event.y
-        def find(point):
+        def find(point, map_t):
             res = -1
             for i in range(point[0] - 5, point[0] + 5):
                 for j in range(point[1] - 5, point[1] + 5):
-                    if (i >= 0) and (i <= 499) and (j > 0) and (j <= 499):
-                        if self.map[i][j] >= 0:
+                    if (i >= 0) and (i <= self.size_x-1) and (j > 0) and (j <= self.size_y-1):
+                        if map_t[i][j] >= 0:
                             if res == -1:
-                                res = self.map[i][j]
-                            elif self.map[i][j] != res:
+                                res = map_t[i][j]
+                            elif map_t[i][j] != res:
                                 res = -1
                                 return res
-            print("select ", res)
+            # print("select ", res)
+            return res
+        def find_curve(point, map_t):
+            res = [-1, -1]
+            for i in range(point[0] - 5, point[0] + 5):
+                for j in range(point[1] - 5, point[1] + 5):
+                    if (i >= 0) and (i <= self.size_x-1) and (j > 0) and (j <= self.size_y-1):
+                        if map_t[i][j][0] >=0:
+                            if res == [-1, -1]:
+                                res = map_t[i][j]
+                            elif map_t[i][j][0] != res[0]:
+                                res = [-1, -1]
+                                return res
+            # print("select ", res)
             return res
         color = [self.color_r, self.color_g, self.color_b]
-        if event.x>=self.size_x-5 and event.y>=self.size_y-5:
+        if self.size_x-5 <= event.x <= self.size_x+5 and self.size_y-5 <= event.y <= self.size_y+5:
             self.is_image_scaling = 3
-        elif event.x>=self.size_x-5:
+        elif self.size_x-5 <= event.x <= self.size_x+5:
             self.is_image_scaling = 1
-        elif event.y >=self.size_y-5:
+        elif self.size_y-5 <= event.y <= self.size_y+5:
             self.is_image_scaling = 2
+        # elif 0 <= event.x <=self.size_x and 0 <= event.y <= self.size_y:
         elif self.type == 0 or self.type == 1:
             temp_list = [[self.start_x, self.start_y], [self.start_x, self.start_y]]
             line_being_drawn = Line(temp_list, self.primitives.__len__(), self.line_type, color)
@@ -479,7 +499,15 @@ class GUI:
                 self.cur -= 1
                 self.primitives[self.cur].updating([event.x, event.y])
         elif self.type==4:  # curve
-            if self.is_curve_painting == 0:
+            tmp = [-1, -1]
+            if self.display_ctrl_point == 1:
+                tmp = find_curve([event.x, event.y], self.map_ctrl_point)
+            if tmp[0] != -1:
+                self.is_curve_modifying = 1
+                self.curve_modify_num = tmp
+                # print(tmp)
+                self.is_curve_painting = 0
+            elif self.is_curve_painting == 0:
                 curve_being_drawn = Curve([[self.start_x, self.start_y],[self.start_x, self.start_y]],
                                           self.primitives.__len__(),
                                           ('Bezier' if self.curve_type==1 else 'B-spline'), 0, color)
@@ -491,7 +519,7 @@ class GUI:
             self.refresh()
         elif self.type ==5:
             # print(self.map[50])
-            self.primitive_changing = find([event.x, event.y])
+            self.primitive_changing = find([event.x, event.y], self.map)
             if self.primitive_changing >= 0:
                 self.is_translating = 1
                 self.last_point = [event.x, event.y]
@@ -503,7 +531,7 @@ class GUI:
                 self.is_rotating = 1
                 self.refresh()
             else:
-                self.primitive_changing = find([event.x, event.y])
+                self.primitive_changing = find([event.x, event.y], self.map)
                 if self.primitive_changing >= 0:
                     # self.is_rotating = 1
                     self.primitives[self.primitive_changing].change(1)
@@ -520,14 +548,14 @@ class GUI:
                 self.is_scaling = 1
                 self.refresh()
             else:
-                self.primitive_changing = find([event.x, event.y])
+                self.primitive_changing = find([event.x, event.y], self.map)
                 self.primitives[self.primitive_changing].change(1)
                 if self.primitive_changing >= 0:
                     print('a')
                     self.start_distance = math.sqrt(pow(event.x - self.scale_point[0], 2) +
                                                     pow(event.y - self.scale_point[1], 2))
 
-        print("press", event.x, event.y)
+        # print("press", event.x, event.y)
 
     def leftmove(self, event):
         x = event.x
@@ -535,6 +563,7 @@ class GUI:
         # print("pass", x, y)
         # temp_list = []
         if self.is_image_scaling > 0:
+            self.cur -= 1
             if self.is_image_scaling == 1:
                 self.size_x = 1000 if x>=1000 else x
             elif self.is_image_scaling == 2:
@@ -559,7 +588,10 @@ class GUI:
             self.primitives[self.cur].updating([x, y])
             # self.refresh()
         elif self.type == 4:
-            self.primitives[self.cur].updating([x, y])
+            if self.is_curve_modifying == 1:
+                self.primitives[self.curve_modify_num[0]].modify(self.curve_modify_num[1], [x, y])
+            else:
+                self.primitives[self.cur].updating([x, y])
         # print(self.primitives[self.cur].vertex)
         # print(self.primitives[self.cur].pixels)
         elif self.type == 5 and self.is_translating == 1:
@@ -595,7 +627,11 @@ class GUI:
             self.polygon_last_point = [event.x, event.y]
             self.refresh()
         elif self.type == 4:
-            self.primitives[self.cur].updating([event.x, event.y])
+            if self.is_curve_modifying == 1:
+                self.primitives[self.curve_modify_num[0]].modify(self.curve_modify_num[1], [event.x, event.y])
+                self.is_curve_modifying = 0
+            else:
+                self.primitives[self.cur].updating([event.x, event.y])
             self.refresh()
         elif self.type == 5:
             self.is_translating = 0
@@ -606,7 +642,7 @@ class GUI:
         elif self.type == 7:
             self.primitive_changing = -1
             self.primitives[self.primitive_changing].change(0)
-        print("release")
+        # print("release")
 
     def double_left_click(self, event):
         print("double!")
@@ -617,7 +653,7 @@ class GUI:
 
     def set_type(self, type_t):  # 设置鼠标画图的类型
         self.type = type_t
-        if type_t==4:
+        if type_t>=4:
             self.pack_dis_ctrl_point(1)
         else:
             self.pack_dis_ctrl_point(0)
@@ -636,6 +672,7 @@ class GUI:
             self.is_scaling = 0
             self.scale_point = [-1, -1]
             self.refresh()
+        self.refresh()
         # self.primitive_changing = -1
 
 if __name__ == '__main__':

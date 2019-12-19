@@ -8,13 +8,13 @@ class Curve(Primitive):
 
     def rasterization(self):
         self.pixels = []
-        if len(self.vertex) == 2:
-            tmp_vertex = [[int(self.vertex[0][0]), int(self.vertex[0][1])],
-                          [int(self.vertex[1][0]), int(self.vertex[1][1])]]
-            temp = Line(tmp_vertex, 1, 1, 1)
-            self.pixels = temp.get_pixels()
-            # return temp.get_pixels()
-            return
+        # if len(self.vertex) == 2:
+        #     tmp_vertex = [[int(self.vertex[0][0]), int(self.vertex[0][1])],
+        #                   [int(self.vertex[1][0]), int(self.vertex[1][1])]]
+        #     temp = Line(tmp_vertex, 1, 1, 1)
+        #     self.pixels = temp.get_pixels()
+        #     # return temp.get_pixels()
+        #     return
         if self.alg == 'Bezier':
             self.Bezier()
         elif self.alg == 'B-spline':

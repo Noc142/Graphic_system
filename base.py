@@ -100,3 +100,8 @@ class Primitive:
         self.vertex_float = self.vertex
         if i == 0:
             self.vertex_float = []
+
+    def modify(self, i, point):
+        self.vertex[i] = point
+        # print(i)
+        self.rasterization()
