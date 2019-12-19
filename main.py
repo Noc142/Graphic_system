@@ -31,6 +31,8 @@ class GUI:
         # 菜单栏：
         self.menubar = Menu(self.top)
         self.init_menubar()
+        # 曲线的控制点显示和拖拽
+        self.init_curve_drawing()
         # pack
         self.pack_n_run()
 
@@ -150,6 +152,20 @@ class GUI:
         sub_menu_curve.add_radiobutton(label="Bezier", command=lambda: set_draw_type('curve', 1))  # command
         sub_menu_curve.add_radiobutton(label="B-spline", command=lambda: set_draw_type('curve', 2))
 
+    def init_curve_drawing(self):
+        self.display_ctrl_point = 0
+        self.ctrl_point_check = Checkbutton(self.top, text="显示控制点", command=self.change_dis_ctrl_point)
+
+
+    def change_dis_ctrl_point(self):
+        self.display_ctrl_point = 1 if self.display_ctrl_point==0 else 0
+
+    def pack_dis_ctrl_point(self, p):
+        if p==1:
+            self.ctrl_point_check.grid(row=0, column=12)
+        else:
+            self.ctrl_point_check.grid_forget()
+
     def pack_n_run(self):
         # pack， TODO：位置设置
         self.line_DDA.grid(row=0, column=0)
@@ -168,6 +184,8 @@ class GUI:
         self.cl.grid(row=0, column=9)
         self.clean.grid(row=0, column=10)
         self.close.grid(row=0, column=11)
+        self.pack_dis_ctrl_point(1)
+        self.pack_dis_ctrl_point(0)
         # self.draw_line.grid(row=3, column=0)
         # self.draw_circle.grid(row=3, column=1)
         self.top.config(menu=self.menubar)
@@ -375,6 +393,10 @@ class GUI:
         # t1 = int(round(time.time() * 1000))
         # self.image.show()
         # print("refresh!")
+        if self.display_ctrl_point==1:
+            print(1111)
+        else:
+            print("0000")
         self.image = Image.new("RGB", (self.size_x, self.size_y), (255, 255, 255))
         self.draw = ImageDraw.Draw(self.image)
         self.map = np.full((self.size_x, self.size_y), -1)
@@ -583,6 +605,10 @@ class GUI:
 
     def set_type(self, type_t):  # 设置鼠标画图的类型
         self.type = type_t
+        if type_t==4:
+            self.pack_dis_ctrl_point(1)
+        else:
+            self.pack_dis_ctrl_point(0)
         if self.is_polygon_painting == 1:  # 完成多边形的绘制
             self.is_polygon_painting = 0
             self.primitives[self.cur].done()
