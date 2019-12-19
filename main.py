@@ -155,10 +155,11 @@ class GUI:
     def init_curve_drawing(self):
         self.display_ctrl_point = 0
         self.ctrl_point_check = Checkbutton(self.top, text="显示控制点", command=self.change_dis_ctrl_point)
-
+        self.map_ctrl_point = np.full((self.size_x, self.size_y), -1)
 
     def change_dis_ctrl_point(self):
         self.display_ctrl_point = 1 if self.display_ctrl_point==0 else 0
+        self.refresh()
 
     def pack_dis_ctrl_point(self, p):
         if p==1:
@@ -393,10 +394,10 @@ class GUI:
         # t1 = int(round(time.time() * 1000))
         # self.image.show()
         # print("refresh!")
-        if self.display_ctrl_point==1:
-            print(1111)
-        else:
-            print("0000")
+        # if self.display_ctrl_point==1:
+        #     print(1111)
+        # else:
+        #     print("0000")
         self.image = Image.new("RGB", (self.size_x, self.size_y), (255, 255, 255))
         self.draw = ImageDraw.Draw(self.image)
         self.map = np.full((self.size_x, self.size_y), -1)
@@ -423,6 +424,17 @@ class GUI:
             self.paper.create_oval(self.scale_point[0]-2, self.scale_point[1]-2,
                                    self.scale_point[0]+2, self.scale_point[1]+2,
                                    fill='green')
+        if self.type==4 and self.display_ctrl_point==1:  # 绘制曲线控制点和虚线
+            self.map_ctrl_point = np.full((self.size_x, self.size_y), -1)
+            for i in range(self.primitives.__len__()):
+                if self.primitives[i].__class__.__name__ == 'Curve':
+                    vertex = self.primitives[i].get_vertexes()
+                    for j in range(vertex.__len__()):
+                        self.paper.create_oval(vertex[j][0]-2, vertex[j][1]-2, vertex[j][0]+2, vertex[j][1]+2)
+                        if j >= 1:
+                            self.paper.create_line(vertex[j-1][0], vertex[j-1][1], vertex[j][0], vertex[j][1],
+                                                   fill='red', dash=(4, 4))
+
         # t2 = int(round(time.time() * 1000))
         # print("timecost:", t2-t1)
 

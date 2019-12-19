@@ -37,6 +37,9 @@ class Primitive:
             # print("here")
         return self.pixels
 
+    def get_vertexes(self):
+        return self.vertex
+
     def get_id(self):
         return self.pno
 
