@@ -136,16 +136,16 @@ class Line(Primitive):
                     res = []
                     if code[1]&8==8:
                         # print("x min")
-                        res = self.node(x1, y1, x2, y2, 1)
+                        res.extend(self.node(x1, y1, x2, y2, 1))
                     elif code[1]&4==4:
                         # print("x max")
-                        res = self.node(x1, y1, x2, y2, 2)
+                        res.extend(self.node(x1, y1, x2, y2, 2))
                     if code[1]&2==2:
                         # print("y min")
-                        res = self.node(x1, y1, x2, y2, 3)
+                        res.extend(self.node(x1, y1, x2, y2, 3))
                     elif code[1]&1==1:
                         # print("y max")
-                        res = self.node(x1, y1, x2, y2, 4)
+                        res.extend(self.node(x1, y1, x2, y2, 4))
                     if len(res) != 0:
                         cross_points.append(res)
                     self.vertex = cross_points
@@ -283,6 +283,7 @@ class Line(Primitive):
 
     def get_method(self):
         return self.method
+
 
 
 

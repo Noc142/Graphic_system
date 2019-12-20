@@ -589,6 +589,7 @@ class GUI:
         elif self.type == 8:
             if self.is_clipping == 1:
                 self.last_point = [event.x, event.y]
+                self.clip_point = [event.x, event.y]
             else:
                 self.primitive_changing = find([event.x, event.y], self.map)
                 if self.primitive_changing >= 0 and self.primitives[self.primitive_changing].__class__.__name__=='Line':
@@ -659,7 +660,7 @@ class GUI:
             self.start_distance = cur_dis
         elif self.type == 8 and self.primitive_changing != -1 and self.is_clipping==1:
             self.clip_point = [x, y]
-            self.clip_alg = 'Liang-Barsky'
+            self.clip_alg = 'Cohen-Sutherland'
             self.tmp_cut_line = Line(self.primitives[self.primitive_changing].get_vertexes(), -1,
                                      self.primitives[self.primitive_changing].get_method(), 0)
             # tmp_line = self.primitives[self.primitive_changing]
