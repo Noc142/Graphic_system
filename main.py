@@ -1,8 +1,5 @@
 # TODO:
 #       回退： 存操作&存对象
-#       鼠标事件转成命令行操作
-#       鲁棒性：命令行错误 弹窗提示 e.g.裁剪非直线
-#       GUI裁剪
 #       按钮提示
 #       曲线控制点, canvas的显示
 #       鼠标按下
@@ -98,7 +95,7 @@ class GUI:
         self.close = Button(self.top, command=self.top.destroy, text="关闭", image=self.tmp_icon10)
 
     def init_change(self):
-        self.primitive_changing = 0
+        self.primitive_changing = -1
         self.last_point = [-1, -1]
         self.is_translating = 0
         self.rotate_point = [-1, -1]
@@ -113,6 +110,8 @@ class GUI:
         self.clip_point = [-1, -1]
         self.clip_alg = ''
         self.clipped = 0
+        self.tmp_cut_line = Line([[0, 0], [0, 0]], -1, 1, 0)
+
 
         # self.
 
@@ -389,6 +388,7 @@ class GUI:
         self.primitives = []
         self.rotate_point = [-1, -1]
         self.scale_point = [-1, -1]
+        self.primitive_changing = -1
         self.refresh()
         self.is_curve_painting = 0
         self.is_polygon_painting = 0
@@ -450,6 +450,28 @@ class GUI:
                         if j >= 1:
                             self.paper.create_line(vertex[j-1][0], vertex[j-1][1], vertex[j][0], vertex[j][1],
                                                    fill='red', dash=(4, 4))
+        if self.type == 8 and self.primitive_changing != -1:
+            vertex = self.primitives[self.primitive_changing].get_vertexes()
+            self.paper.create_oval(vertex[0][0] - 2, vertex[0][1] - 2,
+                                   vertex[0][0] + 2, vertex[0][1] + 2,
+                                   fill='blue')
+            self.paper.create_oval(vertex[1][0] - 2, vertex[1][1] - 2,
+                                   vertex[1][0] + 2, vertex[1][1] + 2,
+                                   fill='blue')
+        if self.type == 8 and self.primitive_changing != -1 and self.is_clipping==1:
+            vertex = self.tmp_cut_line.get_vertexes()
+            if self.tmp_cut_line.is_deleted != 1:
+                self.paper.create_line(vertex[0][0], vertex[0][1], vertex[1][0], vertex[1][1], fill='red', width=3)
+            vertex = [self.last_point, self.clip_point]
+            xmax = max(vertex[0][0], vertex[1][0])
+            xmin = min(vertex[0][0], vertex[1][0])
+            ymax = max(vertex[0][1], vertex[1][1])
+            ymin = min(vertex[0][1], vertex[1][1])
+            x = [xmin, xmin, xmax, xmax]
+            y = [ymin, ymax, ymax, ymin]
+            for i in range(4):
+                self.paper.create_line(x[i], y[i], x[(i+1)%4], y[(i+1)%4], fill='red', dash=(4, 4))
+
 
         # t2 = int(round(time.time() * 1000))
         # print("timecost:", t2-t1)
@@ -571,6 +593,7 @@ class GUI:
                 self.primitive_changing = find([event.x, event.y], self.map)
                 if self.primitive_changing >= 0 and self.primitives[self.primitive_changing].__class__.__name__=='Line':
                     self.is_clipping = 1
+            self.refresh()
 
 
 
@@ -636,12 +659,14 @@ class GUI:
             self.start_distance = cur_dis
         elif self.type == 8 and self.primitive_changing != -1 and self.is_clipping==1:
             self.clip_point = [x, y]
-            self.clip_alg = 'Cohen-Sutherland'
-            tmp_line = self.primitives[self.primitive_changing]
-
-            tmp_line.clip(self.last_point[0], self.last_point[1],
-                                                          self.clip_point[0], self.clip_point[1],
-                                                          self.clip_alg)
+            self.clip_alg = 'Liang-Barsky'
+            self.tmp_cut_line = Line(self.primitives[self.primitive_changing].get_vertexes(), -1,
+                                     self.primitives[self.primitive_changing].get_method(), 0)
+            # tmp_line = self.primitives[self.primitive_changing]
+            print(self.primitives[self.primitive_changing].get_vertexes())
+            # print(self.last_point, self.clip_point)
+            self.tmp_cut_line.clip(self.last_point[0], self.last_point[1],
+                                   self.clip_point[0], self.clip_point[1], self.clip_alg)
             self.clipped = 1
             # 类的赋值有问题
             # 得到像素画出来
@@ -679,8 +704,13 @@ class GUI:
                                                           self.clip_point[0], self.clip_point[1],
                                                           self.clip_alg)
             self.clipped = 0
+            self.last_point = [-1, -1]
+            self.clip_point = [-1, -1]
             self.is_clipping = 0
             self.primitive_changing = -1
+            self.tmp_cut_line = Line([[0, 0], [0, 0]], -1, 1, 0)
+            self.refresh()
+
         # print("release")
 
     def double_left_click(self, event):
@@ -692,7 +722,7 @@ class GUI:
 
     def set_type(self, type_t):  # 设置鼠标画图的类型
         self.type = type_t
-        if type_t>=4:
+        if type_t>=4 and type_t !=8:
             self.pack_dis_ctrl_point(1)
         else:
             self.pack_dis_ctrl_point(0)
@@ -711,6 +741,8 @@ class GUI:
             self.is_scaling = 0
             self.scale_point = [-1, -1]
             self.refresh()
+        self.last_point = [-1, -1]
+        self.clip_point = [-1, -1]
         self.refresh()
         # self.primitive_changing = -1
 

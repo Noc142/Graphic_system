@@ -13,8 +13,11 @@ class Line(Primitive):
             # print(self.pixels.__len__())
             # return self.pixels
         # print("rasterization")
+        if self.vertex.__len__() == 1:
+            self.vertex.append(self.vertex[0])
         self.slope = 10000
         self.vertical = 0
+        # print(self.vertex)
         # print(self.vertex)
         if self.vertex[1][0] == self.vertex[0][0]:
             self.vertical = 1  # 垂直 不存在斜率
@@ -278,7 +281,8 @@ class Line(Primitive):
             code[1] = code[1] | 1
         return code
 
-
+    def get_method(self):
+        return self.method
 
 
 
