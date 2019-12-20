@@ -72,8 +72,8 @@ class GUI:
         self.rotate = Button(self.top, command=lambda: self.set_type(6), text="旋转", image=self.tmp_icon5)
         self.tmp_icon6 = self.getIcon(6)
         self.scale = Button(self.top, command=lambda: self.set_type(7), text="缩放", image=self.tmp_icon6)
-        # self.tmp_icon12 = self.getIcon(12)
-        self.clip = Button(self.top, command=lambda: self.set_type(8), text="裁剪")  #, image=self.tmp_icon12)
+        self.tmp_icon11 = self.getIcon(11)
+        self.clip = Button(self.top, command=lambda: self.set_type(8), text="裁剪", image=self.tmp_icon11)
         # self.save_but = Button(self.top, command=self.save_canvas, text="保存")
         self.is_polygon_painting = 0
         self.is_curve_painting = 0
@@ -108,7 +108,7 @@ class GUI:
         # self.primitive_clipping = -1
         self.is_clipping = 0
         self.clip_point = [-1, -1]
-        self.clip_alg = ''
+        self.clip_alg = 'Cohen-Sutherland'
         self.clipped = 0
         self.tmp_cut_line = Line([[0, 0], [0, 0]], -1, 1, 0)
 
@@ -148,6 +148,8 @@ class GUI:
                 if self.curve_type != type_t:
                     self.is_curve_painting = 0
                 self.curve_type = type_t
+            elif pri=='clip':
+                self.clip_alg = 'Cohen-Sutherland' if type_t== 1 else 'Liang-Barsky'
         sub_menu_line = Menu(drawmenu, tearoff=0)
         drawmenu.add_cascade(label="直线绘制算法", menu=sub_menu_line)
         sub_menu_line.add_radiobutton(label="DDA", command=lambda: set_draw_type('line', 1))  # command
@@ -160,6 +162,10 @@ class GUI:
         drawmenu.add_cascade(label="曲线绘制算法", menu=sub_menu_curve)
         sub_menu_curve.add_radiobutton(label="Bezier", command=lambda: set_draw_type('curve', 1))  # command
         sub_menu_curve.add_radiobutton(label="B-spline", command=lambda: set_draw_type('curve', 2))
+        sub_menu_clip = Menu(drawmenu, tearoff=0)
+        drawmenu.add_cascade(label="直线裁剪算法", menu=sub_menu_clip)
+        sub_menu_clip.add_radiobutton(label="Cohen-Sutherland", command=lambda: set_draw_type('clip', 1))  # command
+        sub_menu_clip.add_radiobutton(label="梁友栋-Barsky", command=lambda: set_draw_type('clip', 2))
 
     def init_curve_drawing(self):
         self.display_ctrl_point = 0
@@ -588,6 +594,7 @@ class GUI:
                                                     pow(event.y - self.scale_point[1], 2))
         elif self.type == 8:
             if self.is_clipping == 1:
+                # print("yyy")
                 self.last_point = [event.x, event.y]
                 self.clip_point = [event.x, event.y]
             else:
@@ -660,7 +667,6 @@ class GUI:
             self.start_distance = cur_dis
         elif self.type == 8 and self.primitive_changing != -1 and self.is_clipping==1:
             self.clip_point = [x, y]
-            self.clip_alg = 'Cohen-Sutherland'
             self.tmp_cut_line = Line(self.primitives[self.primitive_changing].get_vertexes(), -1,
                                      self.primitives[self.primitive_changing].get_method(), 0)
             # tmp_line = self.primitives[self.primitive_changing]
@@ -669,9 +675,6 @@ class GUI:
             self.tmp_cut_line.clip(self.last_point[0], self.last_point[1],
                                    self.clip_point[0], self.clip_point[1], self.clip_alg)
             self.clipped = 1
-            # 类的赋值有问题
-            # 得到像素画出来
-            #TODO: 算法选择， 直线和裁剪框的标识
         self.refresh()
         # print("refreshed")
 
@@ -714,8 +717,8 @@ class GUI:
 
         # print("release")
 
-    def double_left_click(self, event):
-        print("double!")
+    def double_left_click(self, event):  # unused
+        # print("double!")
         if self.type == 3 and self.is_polygon_painting == 1:
             self.primitives[self.cur].update_rasterization([event.x, event.y])
             self.polygon_last_point = [event.x, event.y]
@@ -742,6 +745,8 @@ class GUI:
             self.is_scaling = 0
             self.scale_point = [-1, -1]
             self.refresh()
+        if self.is_clipping:
+            self.is_clipping = 0
         self.last_point = [-1, -1]
         self.clip_point = [-1, -1]
         self.refresh()
