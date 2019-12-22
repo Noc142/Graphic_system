@@ -455,7 +455,7 @@ class GUI:
                         if j >= 1:
                             self.paper.create_line(vertex[j-1][0], vertex[j-1][1], vertex[j][0], vertex[j][1],
                                                    fill='red', dash=(4, 4))
-        if self.type == 8 and self.primitive_changing != -1:
+        if self.type == 8 and self.primitive_changing != -1 and self.primitives[self.primitive_changing].__class__.__name__=='Line':
             vertex = self.primitives[self.primitive_changing].get_vertexes()
             self.paper.create_oval(vertex[0][0] - 2, vertex[0][1] - 2,
                                    vertex[0][0] + 2, vertex[0][1] + 2,

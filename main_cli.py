@@ -22,39 +22,39 @@ class CLI:
 
 
 
-    def open_file(self, path):
-        name = tkfl.askopenfilename(filetypes=[("文本文档", ".txt")])
-        print(name)
-        path.set(name)
+    # def open_file(self, path):
+    #     name = tkfl.askopenfilename(filetypes=[("文本文档", ".txt")])
+    #     print(name)
+    #     path.set(name)
+    #
+    # def select_dir(self, path):
+    #     name = tkfl.askdirectory()
+    #     print(name)
+    #     path.set(name)
 
-    def select_dir(self, path):
-        name = tkfl.askdirectory()
-        print(name)
-        path.set(name)
 
+    # def draw_line_primitive(self, x1, y1, x2, y2, method):   # 通用的 vertex是输入框的list的list 待添加更多参数以区分形状
+    #                                                         # method也可以用来区分是否为多边形传入的直线，这样就不用对直线创建新的图元了
+    #     vertex = [[int(x1.get()), int(y1.get())], [int(x2.get()), int(y2.get())]]
+    #     color = [self.color_r, self.color_g, self.color_b]
+    #     line_2b_drawn = Line(vertex, self.primitives.__len__(), method, color)
+    #     line_2b_drawn.rasterization()
+    #     self.primitives.append(line_2b_drawn)
+    #     # print(points)
+    #     # for i in points:
+    #     #     self.print_pixel(i[0], i[1])
+    #     self.refresh()
+    #     # self.image.show()
 
-    def draw_line_primitive(self, x1, y1, x2, y2, method):   # 通用的 vertex是输入框的list的list 待添加更多参数以区分形状
-                                                            # method也可以用来区分是否为多边形传入的直线，这样就不用对直线创建新的图元了
-        vertex = [[int(x1.get()), int(y1.get())], [int(x2.get()), int(y2.get())]]
-        color = [self.color_r, self.color_g, self.color_b]
-        line_2b_drawn = Line(vertex, self.primitives.__len__(), method, color)
-        line_2b_drawn.rasterization()
-        self.primitives.append(line_2b_drawn)
-        # print(points)
-        # for i in points:
-        #     self.print_pixel(i[0], i[1])
-        self.refresh()
-        # self.image.show()
-
-    def draw_circle_primitive(self, x, y, rx, ry):
-        vertex = [[int(x.get()), int(y.get())], [int(rx.get()), int(ry.get())]]
-        color = [self.color_r, self.color_g, self.color_b]
-        circle_2b_drawn = Circle(vertex, self.primitives.__len__(), color)
-        circle_2b_drawn.rasterization()
-        self.primitives.append(circle_2b_drawn)
-        # for i in points:
-        #     self.print_pixel(i[0], i[1])
-        self.refresh()
+    # def draw_circle_primitive(self, x, y, rx, ry):
+    #     vertex = [[int(x.get()), int(y.get())], [int(rx.get()), int(ry.get())]]
+    #     color = [self.color_r, self.color_g, self.color_b]
+    #     circle_2b_drawn = Circle(vertex, self.primitives.__len__(), color)
+    #     circle_2b_drawn.rasterization()
+    #     self.primitives.append(circle_2b_drawn)
+    #     # for i in points:
+    #     #     self.print_pixel(i[0], i[1])
+    #     self.refresh()
 
     def cmd_line_act(self, file_name, save_path):  # 这里 文件名是字符串了
         file = file_name
