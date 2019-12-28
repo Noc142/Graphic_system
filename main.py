@@ -1,7 +1,3 @@
-# TODO:
-#       回退： 存操作&存对象
-#       曲线控制点, canvas的显示
-#       鼠标按下
 
 from base import*
 from line import*

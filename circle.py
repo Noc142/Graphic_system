@@ -99,19 +99,24 @@ class Circle(Primitive):  # 其实应该是椭圆
             self.vertex[1] = [self.rx, self.ry]
             self.rasterization()
         else:
-            points = [[self.vertex[0][0] - self.rx, self.vertex[0][1] - self.ry],
-                      [self.vertex[0][0] + self.rx, self.vertex[0][1] + self.ry]]
-            for i in range(len(points)):
-                x1 = points[i][0]
-                y1 = points[i][1]
-                points[i][0] = int((x1 - x0) * s + x0)
-                points[i][1] = int((y1 - y0) * s + y0)
-            self.vertex[0][0] = int((points[0][0] + points[1][0])/2)
-            self.vertex[0][1] = int((points[0][1] + points[1][1])/2)
-            self.vertex[1][0] = abs(int((points[0][0] - points[1][0])/2))
-            self.vertex[1][1] = abs(int((points[0][1] - points[1][1])/2))
-            self.rx = self.vertex[1][0]
-            self.ry = self.vertex[1][1]
+            # points = [[self.vertex[0][0] - self.rx, self.vertex[0][1] - self.ry],
+            #           [self.vertex[0][0] + self.rx, self.vertex[0][1] + self.ry]]
+            # for i in range(len(points)):
+            #     x1 = points[i][0]
+            #     y1 = points[i][1]
+            #     points[i][0] = int((x1 - x0) * s + x0)
+            #     points[i][1] = int((y1 - y0) * s + y0)
+            # self.vertex[0][0] = int((points[0][0] + points[1][0])/2)
+            # self.vertex[0][1] = int((points[0][1] + points[1][1])/2)
+            # self.vertex[1][0] = abs(int((points[0][0] - points[1][0])/2))
+            # self.vertex[1][1] = abs(int((points[0][1] - points[1][1])/2))
+            # self.rx = self.vertex[1][0]
+            # self.ry = self.vertex[1][1]
+            self.vertex[1] = [int(p*s) for p in self.vertex[1]]
+            x1 = self.vertex[0][0]
+            y1 = self.vertex[0][1]
+            self.vertex[0][0] = int((x1 - x0) * s + x0)
+            self.vertex[0][1] = int((y1 - y0) * s + y0)
             self.rasterization()
 
 
