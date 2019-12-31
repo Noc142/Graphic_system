@@ -348,7 +348,7 @@ class GUI:
                 print("scale")
                 for i in range(len(self.primitives)):
                     if int(words[1]) == self.primitives[i].get_id():
-                        self.primitives[i].scale(int(words[2]), int(words[3]), int(words[4]))
+                        self.primitives[i].scale(int(words[2]), int(words[3]), float(words[4]))
                         break
                 self.refresh()
             elif words[0] == "clip":
